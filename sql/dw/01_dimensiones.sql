@@ -16,7 +16,7 @@ CREATE TABLE DIM_TIEMPO (
   trimestre      NUMBER(1),
   mes            NUMBER(2),
   nombre_mes     VARCHAR2(15),
-  anio_mes       VARCHAR2(7),          -- '2017-11' para ordenar en Excel
+  anio_mes       VARCHAR2(10),          -- '2017-11' para ordenar en Excel
   dia            NUMBER(2),
   dia_semana     NUMBER(1),            -- 1 = lunes ... 7 = domingo
   nombre_dia     VARCHAR2(15),
