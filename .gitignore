@@ -1,0 +1,32 @@
+# Credenciales y configuración local
+.env
+etl/.env
+*.env
+!*.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.ipynb_checkpoints/
+
+# Logs y salidas del ETL
+logs/
+*.log
+etl/rechazados/
+
+# Datos (no se versionan datos de la base)
+*.csv
+*.parquet
+*.dmp
+
+# Excel temporal (el informe final sí se versiona)
+~$*.xlsx
+
+# IDE / SO
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

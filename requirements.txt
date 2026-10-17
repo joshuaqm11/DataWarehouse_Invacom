@@ -1,0 +1,4 @@
+pandas>=2.2
+SQLAlchemy>=2.0
+oracledb>=2.0
+python-dotenv>=1.0
