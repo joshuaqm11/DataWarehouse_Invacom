@@ -57,6 +57,29 @@ Todos trabajamos contra **nuestra propia base Oracle local**, por eso todo lo ne
    python etl/test_conexion.py
    ```
 
+## Ejecutar el ETL
+
+Requisitos (una vez): `sql/dw/01_dimensiones.sql`, `02_hechos.sql` y `03_control_etl.sql` ejecutados con la conexión DW_INVACOM.
+
+```bash
+.venv\Scripts\activate
+python etl/main.py          # extrae, transforma, carga y valida (≈ 2-5 min)
+python etl/validar.py       # solo validación fuente vs DW
+```
+
+- Se puede ejecutar las veces que se quiera: **no duplica datos** (MERGE en dimensiones, recarga de hechos en una transacción).
+- Bitácora: consola, `logs/etl_<fecha>.log` y tabla `ETL_LOG_CARGA` del DW.
+- Filas rechazadas: `logs/rechazados_*.csv` con el motivo.
+- Reglas de limpieza: `docs/reglas_etl.md`. Consultas de control: `sql/validacion/01_validaciones_dw.sql`.
+
+| Módulo | Responsabilidad |
+|---|---|
+| `etl/extract.py` | Consultas explícitas a las tablas STG_* |
+| `etl/transform.py` | Limpieza, enriquecimiento, dimensiones y hechos |
+| `etl/load.py` | MERGE de dimensiones, carga de hechos, transacción, bitácora |
+| `etl/validar.py` | Cuadre fuente vs DW y controles de integridad |
+| `etl/main.py` | Orquestación y resumen |
+
 ## Convenciones de trabajo en Git
 
 - Una rama por tarea: `feature/<tarjeta>-<nombre>` (ej. `feature/5-dim-producto`), luego Pull Request a `main` y revisión de otro integrante (columna *In Review* del tablero).
