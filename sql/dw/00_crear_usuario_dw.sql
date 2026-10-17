@@ -11,6 +11,12 @@
 -- (CDB): cambien la conexión al servicio de la PDB.
 -- =====================================================================
 
+-- Si la conexión Administrador apunta al contenedor raíz (CDB$ROOT),
+-- esta línea cambia la sesión a la PDB. Usen el MISMO contenedor donde
+-- están las tablas STG_* (ver consulta en ConexionProyecto):
+--   SELECT SYS_CONTEXT('USERENV','CON_NAME') FROM dual;
+ALTER SESSION SET CONTAINER = XEPDB1;   -- o FREEPDB1 según su instalación
+
 -- Verificación: debe mostrar XEPDB1 / FREEPDB1, NO "CDB$ROOT"
 SELECT SYS_CONTEXT('USERENV', 'CON_NAME') AS contenedor FROM dual;
 
