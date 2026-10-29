@@ -67,11 +67,18 @@ ORDER  BY id_log;
 -- =====================================================================
 -- 5. Ventas por ano: staging vs. produccion
 --    (esperado: diferencia 0 en todos los anos)
---    Nota: las fechas en staging son texto; TO_TIMESTAMP evita ORA-30076.
+--    Nota: segun como se importo el CSV, ORDER_PURCHASE_TIMESTAMP puede ser
+--    texto (VARCHAR2) o fecha (DATE/TIMESTAMP). Revisar el tipo con:
+--      SELECT data_type FROM user_tab_columns
+--      WHERE table_name = 'STG_ORDERS'
+--        AND column_name = 'ORDER_PURCHASE_TIMESTAMP';
+--    5a = texto (TO_TIMESTAMP evita ORA-30076)  -  5b = DATE/TIMESTAMP.
+--    Si con 5a salen anos 1..31, la columna es DATE: usar 5b.
 -- =====================================================================
 COLUMN ventas_staging    FORMAT 999,999,999.99
 COLUMN ventas_produccion FORMAT 999,999,999.99
 
+-- 5a - Fecha de staging como texto
 SELECT s.anio,
        s.ventas_staging,
        p.ventas_produccion,
@@ -84,6 +91,27 @@ FROM (
   JOIN   STG_ORDERS       o ON o.order_id = i.order_id
   GROUP  BY EXTRACT(YEAR FROM TO_TIMESTAMP(o.order_purchase_timestamp,
                                            'YYYY-MM-DD HH24:MI:SS'))
+) s
+JOIN (
+  SELECT t.anio,
+         ROUND(SUM(f.monto_total), 2) ventas_produccion
+  FROM   FACT_VENTAS@LNK_PRODUCCION  f
+  JOIN   DIM_TIEMPO@LNK_PRODUCCION   t ON t.sk_tiempo = f.sk_fecha_compra
+  GROUP  BY t.anio
+) p ON p.anio = s.anio
+ORDER  BY s.anio;
+
+-- 5b - Misma consulta cuando la fecha de staging es DATE o TIMESTAMP
+SELECT s.anio,
+       s.ventas_staging,
+       p.ventas_produccion,
+       s.ventas_staging - p.ventas_produccion AS diferencia
+FROM (
+  SELECT EXTRACT(YEAR FROM o.order_purchase_timestamp) anio,
+         ROUND(SUM(i.price + i.freight_value), 2)      ventas_staging
+  FROM   STG_ORDER_ITEMS  i
+  JOIN   STG_ORDERS       o ON o.order_id = i.order_id
+  GROUP  BY EXTRACT(YEAR FROM o.order_purchase_timestamp)
 ) s
 JOIN (
   SELECT t.anio,
