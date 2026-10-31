@@ -8,10 +8,10 @@ Data Warehouse construido sobre la base **Olist E-commerce** (Brasil, 2016–201
 
 | Integrante | Rol principal |
 |---|---|
-| Joshua | Scrum Master / coordinador · DDL del DW · orquestación (`main.py`) |
-| Fernanda | Exploración y calidad de datos · requisitos · documento APA 7 |
-| Joseph | Extracción · ETL de dimensiones |
-| Fabio | ETL de hechos · validaciones · informes Excel |
+| Joshua | Scrum Master / coordinador · DDL del DW · ETL (extracción, transformación, carga y validación) · actas |
+| Fernanda | Inventario y calidad de datos · database links staging ↔ producción · documento APA 7 |
+| Fabio | Vistas para Excel · conexión Excel–Oracle · informes 1 a 4 · prueba de recuperación |
+| Joseph | Informes 5 a 7 · Tablero · diagrama del modelo y de la fuente · conclusiones |
 
 Tablero Kanban: GitHub Projects → *Proyecto Data Warehouse + ETL - Invacom*.
 
@@ -27,12 +27,14 @@ Oracle (esquema fuente: STG_*)  ──extract──►  Pandas  ──transform�
 ## Estructura del repositorio
 
 ```
-docs/              documento APA, acuerdos, actas de sprint, evidencias
+docs/              modelo dimensional, relaciones de la fuente, calidad, reglas del ETL,
+                   conclusiones, actas de sprint (docs/sprints/) y evidencias (docs/evidencias/)
 sql/exploracion/   consultas de inventario y perfilado de calidad (fuente)
-sql/dw/            DDL del Data Warehouse (crear usuario, dimensiones, hechos)
-sql/validacion/    consultas de control post-carga
+sql/dw/            00 usuario · 01 dimensiones · 02 hechos · 03 bitácora · 04 database links
+                   · 05 vistas para Excel · 99 eliminar todo
+sql/validacion/    consultas de control post-carga y cuadre staging vs producción
 etl/               código Python del ETL
-informes/          archivo Excel y evidencias de conexión
+informes/          libro Excel con 7 informes y Tablero (Informes_DW_Invacom.xlsx)
 ```
 
 ## Puesta en marcha (cada integrante, en su base local)
@@ -56,6 +58,18 @@ Todos trabajamos contra **nuestra propia base Oracle local**, por eso todo lo ne
    ```bash
    python etl/test_conexion.py
    ```
+6. **Database links** (opcional): `sql/dw/04_dblinks.sql` (editar solo la sección `DEFINE` y ejecutar con F5).
+7. **Vistas para Excel:** `sql/dw/05_vistas_excel.sql` con la conexión DW_INVACOM (F5), después de cargar el DW con el ETL.
+
+## Excel
+
+Requisito: Oracle Client for Microsoft Tools (OCMT) instalado, de la misma arquitectura que Office.
+
+1. Abrir `informes/Informes_DW_Invacom.xlsx`.
+2. **Datos → Actualizar todo** (dos veces: la primera recarga las hojas de datos, la segunda las tablas dinámicas).
+3. Credenciales: **Base de datos**, usuario `DW_INVACOM`. Servidor: `localhost:1521/XEPDB1` (si su servicio es otro: Datos → Obtener datos → Configuración de origen de datos → Cambiar origen).
+
+El libro lee las vistas `V_EXCEL_VENTAS`, `V_EXCEL_ORDENES` y `V_EXCEL_PAGOS`; no se pegan datos a mano.
 
 ## Ejecutar el ETL
 
@@ -63,7 +77,7 @@ Requisitos (una vez): `sql/dw/01_dimensiones.sql`, `02_hechos.sql` y `03_control
 
 ```bash
 .venv\Scripts\activate
-python etl/main.py          # extrae, transforma, carga y valida (≈ 2-5 min)
+python etl/main.py          # extrae, transforma, carga y valida (≈ 25 s)
 python etl/validar.py       # solo validación fuente vs DW
 ```
 
@@ -91,6 +105,8 @@ python etl/validar.py       # solo validación fuente vs DW
 
 | Sprint | Fechas | Objetivo |
 |---|---|---|
-| 1 | 17 – 23 oct | Exploración, calidad, requisitos, modelo dimensional, DDL, conexión Python y Excel |
-| 2 | 24 – 30 oct | ETL completo, validaciones, reejecución sin duplicados |
-| 3 | 31 oct – 6 nov | Tablas dinámicas, documento APA 7, ensayo de la defensa |
+| 1 | 17 – 23 oct | Modelo, DDL, ETL completo, validaciones, database links, vistas, 7 informes y Tablero |
+| 2 | 24 – 30 oct | Diagramas, conclusiones, actas, README y Kanban; evidencia y documentación |
+| 3 | 31 oct – 6 nov | Calidad, recuperación, documento APA 7, presentación y ensayo de la defensa |
+
+Actas en `docs/sprints/`.
